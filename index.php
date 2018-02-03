@@ -13,9 +13,9 @@ switch(@$_GET['act']){
     $includeTemplate = false;
   break;
 
-
   case "mailbox":
   case "following":
+  case "users":
   case "profile":
     $includePage = $_GET['act'];
     break;

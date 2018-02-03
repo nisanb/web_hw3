@@ -126,7 +126,9 @@ class ISDB{
      */
     public static function getFollowing($UserID)
     {
-        return self::query("select * from Followers inner join Users ON Followers.FollowingID=Users.id WHERE FollowerID in (\"$UserID\")");
+        $result = self::query("select * from Followers inner join Users ON Followers.FollowingID=Users.id WHERE FollowerID in (\"$UserID\")");
+        
+        return $result;
     }
     
     /**
@@ -135,7 +137,24 @@ class ISDB{
      */
     public static function getFollowersOf($UserID)
     {
-        return self::query("select * from Followers inner join Users ON Followers.FollowerID=Users.id WHERE FollowingID in (\"$UserID\")");
+        $result = self::query("select * from Followers inner join Users ON Followers.FollowerID=Users.id WHERE FollowingID in (\"$UserID\")", true);
+        return $result;
+            
+        
+    }
+    
+    private static function queryUpdate($sql)
+    {
+        $conn = self::getConn();
+        
+        if (!$result = $conn->query($sql)) {
+            // Oh no! The query failed.
+            throw new Exception("Could not intiate query ".$sql);
+            exit;
+        }
+        
+        $conn->close();
+        
     }
     
     private static function query($sql, $display=false)
@@ -157,12 +176,12 @@ class ISDB{
             }
         }
         else{
-            $rows = mysqli_fetch_array($result, MYSQLI_BOTH);
+            array_push($rows, mysqli_fetch_array($result, MYSQLI_BOTH));
         }
         if(@$display)
         {
             echo"<pre>";
-            echo $sql;
+            echo $sql."<br />";
             print_r($rows);
             echo "</pre>";
             
@@ -174,29 +193,55 @@ class ISDB{
         return $rows;
     }
     
+    public static function isFollowing($user)
+    {
+        $loggedUser = $_SESSION['UserID'];
+        $q = self::query("select * from Followers where FollowerID in (\"$loggedUser\") AND FollowingID in (\"$user\")");
+        if($q[0] != null){
+            return true;
+        }
+            
+        
+        return false;
+                
+    }
+    
+    public static function swapFollower($user)
+    {
+        $current = $_SESSION['UserID'];
+        
+        if(self::isFollowing($user))
+        {
+            self::queryUpdate("delete from Followers where FollowerID in (\"$current\") AND FollowingID in (\"$user\")");
+        }
+        else
+        {
+            self::queryUpdate("INSERT INTO Followers VALUES (\"$current\", \"$user\")");
+        }
+    }
     
     public static function getUserDetails($user)
     {
         $result = self::query("select * from Users where id in (\"$user\")");
         
         $num_projects   =   self::query("select count(*) as num_projects from Projects where UserID in (\"$user\")");
-        $result["num_projects"] = $num_projects["num_projects"];
+        $result[0]["num_projects"] = $num_projects[0]["num_projects"];
         
         $num_followers   =   self::query("select count(*) as num_followers from Followers where FollowingID in (\"$user\")");
-        $result["num_followers"] = $num_followers["num_followers"];
+        $result[0]["num_followers"] = $num_followers[0]["num_followers"];
         
         $num_following   =   self::query("select count(*) as num_following from Followers where FollowerID in (\"$user\")");
-        $result["num_following"] = $num_following["num_following"];
+        $result[0]["num_following"] = $num_following[0]["num_following"];
         
         $num_skills   =   self::query("select count(*) as num_skills from userSkills where UserID in (\"$user\")");
-        $result["num_skills"] = $num_skills["num_skills"];
+        $result[0]["num_skills"] = $num_skills[0]["num_skills"];
         
         $num_research   =   self::query("select count(*) as num_research from userResearches where UserID in (\"$user\")");
-        $result["num_research"] = $num_research["num_research"];
+        $result[0]["num_research"] = $num_research[0]["num_research"];
         
         
         
-        return $result;
+        return $result[0];
     }
     
     public static function getUserSkills($user)

@@ -250,7 +250,8 @@ foreach(ISDB::getFollowing($user) as $following)
                             </p>
                             <div class="user-friends" id="p_follow_users_images">
                         ';
-
+                    
+                    
 foreach(ISDB::getFollowersOf($user) as $following)
 {
     $name = $following["id"];
@@ -270,7 +271,7 @@ foreach(ISDB::getFollowersOf($user) as $following)
                 <div class="col-lg-5">
 
                     <div class="social-feed-box" id="p_projects_feed">
-
+                        Feed
                     </div>
 
 
