@@ -66,8 +66,11 @@
                     <li <?=active("profile");?>>
                     <a href="./?act=profile"><i class="fa fa-user"></i> <span class="nav-label">Profile</span></a>
                     </li>
-					<li <?=active("users");?>>
+					          <li <?=active("users");?>>
                     <a href="./?act=users"><i class="fa fa-user"></i> <span class="nav-label">Users</span></a>
+                    </li>
+                    <li <?=active("chat");?>>
+                    <a href="./?act=chat"><i class="fa fa-user"></i> <span class="nav-label">Chat</span></a>
                     </li>
 
 <!-- Default Multi-level menu for future usage TODO
