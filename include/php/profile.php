@@ -4,6 +4,8 @@
 
 $user = isset($_GET['user']) ? $_GET['user'] : $_SESSION['UserID'];
 $title = $user."s' Profile";
+
+$userobj = ISDB::getUserDetails($user);
 //Include CSS to Header
 $include_header = '
 
@@ -75,7 +77,7 @@ $include_footer = '
                         <div class="social-avatar" style="height: 65px;">
                           <strong>`+data[i].title+`</strong>
                             <a href="" class="pull-left">
-                                <img style="height: 60px; width: 60px;" alt="image" src="./include/img/avatar/'.$user.'.jpg">
+                                <img style="height: 60px; width: 60px;" alt="image" src="./include/img/avatar/'.$userobj["profilepic"].'">
                             </a>
                             <div class="media-body">
                                 <a href="#">
@@ -153,7 +155,7 @@ $content = '
                 <div class="col-md-6">
 
                     <div class="profile-image">
-                        <img src="./include/img/avatar/'.$user.'.jpg" class="img-circle circle-border m-b-md" alt="profile">
+                        <img src="./include/img/avatar/'.$userobj["profilepic"].'" class="img-circle circle-border m-b-md" alt="profile">
                     </div>
                     <div class="profile-info">
                         <div class="">
@@ -174,24 +176,24 @@ $content = '
                         <tbody>
                         <tr>
                             <td colspan=2 align=center>
-                                <strong id="p_projects_size"></strong> Projects
+                                <strong>'.$userobj["num_projects"].'</strong> Projects
                             </td>
 
                         </tr>
                         <tr>
                             <td>
-                                <strong id="p_followers_size"></strong> Followers
+                                <strong>'.$userobj["num_followers"].'</strong> Followers
                             </td>
                             <td>
-                               <strong id="p_following_size"></strong> Following
+                               <strong>'.$userobj["num_following"].'</strong> Following
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <strong id="p_skills_size"></strong> Skills
+                                <strong>'.$userobj["num_skills"].'</strong> Skills
                             </td>
                             <td>
-                                <strong id="p_research_size"></strong> Researches
+                                <strong>'.$userobj["num_research"].'</strong> Researches
                             </td>
                         </tr>
                         </tbody>
@@ -222,17 +224,44 @@ $content = '
 
                     <div class="ibox">
                         <div class="ibox-content">
-                            <h3>Followers and Friends</h3>
+                            <h3>Users '.$user.' follows</h3>
                             <p class="small" id="p_follow_text">
 
                             </p>
                             <div class="user-friends" id="p_follow_users_images">
-
+                        ';
+foreach(ISDB::getFollowing($user) as $following)
+{
+    $name = $following["id"];
+    $avatar = $following["profilepic"];
+    $content .= "<a href='./?act=profile&user=".$name."'><img alt=\"image\" title='".$name."' class=\"img-circle\" src=\"./include/img/avatar/".$avatar."\"></a>";
+}
+                    
+                    $content .= '
                             </div>
                         </div>
                     </div>
 
+ <div class="ibox">
+                        <div class="ibox-content">
+                            <h3>Users following '.$user.'</h3>
+                            <p class="small" id="p_follow_text">
 
+                            </p>
+                            <div class="user-friends" id="p_follow_users_images">
+                        ';
+
+foreach(ISDB::getFollowersOf($user) as $following)
+{
+    $name = $following["id"];
+    $avatar = $following["profilepic"];
+    $content .= "<a href='./?act=profile&user=".$name."'><img alt=\"image\" title='".$name."' class=\"img-circle\" src=\"./include/img/avatar/".$avatar."\"></a>";
+}
+                    
+                    $content .= '
+                            </div>
+                        </div>
+                    </div>
 
 
 
@@ -258,6 +287,13 @@ $content = '
                             <div class="vertical-timeline-content">
                                 <h2>Skills</h2>
                                 <p id="p_skills_list">
+                                    ';
+                    foreach(ISDB::getUserSkills($user) as $skill)
+                    {
+                        $content .= "&bull; ".$skill["skillName"]."<br />";
+                    }
+                    
+                    $content .= '
                                 </p>
                                 <a href="#" class="btn btn-sm btn-primary"> Edit Skills</a>
 
@@ -271,7 +307,15 @@ $content = '
 
                             <div class="vertical-timeline-content">
                                 <h2>Research Interests</h2>
-                                <p id="p_research_list"></p>
+                                <p id="p_research_list">
+     ';
+                    foreach(ISDB::getUserResearch($user) as $research)
+                    {
+                        $content .= "&bull; ".$research["ResearchName"]."<br />";
+                    }
+                    
+                    $content .= '
+</p>
                                 <a href="#" class="btn btn-sm btn-success"> Edit Interests </a>
 
                             </div>

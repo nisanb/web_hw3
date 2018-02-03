@@ -1,23 +1,16 @@
 <?php
 //Check if the form is submitted
-if(isset($_POST['force_login']) && strlen($_POST['force_login']) > 0){
-  //Force login is forced
-  $_SESSION['UserID'] = $_POST['force_login'];
-  header("Location: ./");
-} else
 if(isset($_POST['user'])){
 
-    if(strtolower(@$_POST['user']) == "admin" && strtolower(@$_POST['password']) == "admin"){
-          //Able to log in
-          //This will check against the JSON in the future - TODO
-
-          $_SESSION['UserID'] = "admin";
-          header("Location: ./");
-        } else {
-
-          $error = true;
-
-        }
+    try{
+        //Attempt to log in
+        ISDB::login($_POST['user'], $_POST['password']);
+        header("Location: ./");
+        
+    }
+    catch(Exception $e){
+        $error = $e;
+    }
 }
 
 ?>
@@ -54,7 +47,7 @@ if(isset($_POST['user'])){
             <p>Log-In to see it in action!</p>
             <?php
             if(isset($error)){
-              echo "<p style=\"color: red;\">User & Password combination is incorrect!</p>";
+              echo "<p style=\"color: red;\">".$e->getMessage()."</p>";
             }
              ?>
             <form class="m-t" role="form" action="./?act=login" method="POST">
@@ -63,18 +56,6 @@ if(isset($_POST['user'])){
                 </div>
                 <div class="form-group">
                     <input type="password" class="form-control" placeholder="Password" required="" name="password">
-                </div>
-                <div class="form-group")>
-                  Or as a temporary feature - select a user to log in
-                  <select class="form-control" name="force_login" onchange="location.href='./?act=login&force=1">
-                    <option value="">Select User</option>
-                    <option value="nisanb">nisanb</option>
-                    <option value="sbuckley">sbuckley</option>
-                    <option value="lunaf">lunaf</option>
-                    <option value="milahow">milahow</option>
-                    <option value="admin">admin</option>
-
-                  </select>
                 </div>
                 <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
 
