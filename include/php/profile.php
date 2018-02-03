@@ -27,32 +27,7 @@ $include_footer = '
                fillColor: "transparent"
            });
 
-           //Load data from users.json to profile page
-           $.getJSON("./include/json/users.json", function(data){
-             for(var i = 0, len = data.length; i<len; i++){
-               if(data[i].id != "'.$user.'"){
-                 continue;
-               }
-               fullName = data[i].name;
-
-               $("#p_about_text").append(""+ data[i].role_desc + "<br />Is interested in " + data[i].research.length +" researches and has "+data[i].skills.length + " skill sets.");
-               $("#p_role").append(data[i].role);
-               $("#p_role_desc").append(data[i].role_desc);
-               $("#p_name").append(data[i].name);
-               $("#p_skills_size").append(data[i].skills.length);
-               $("#p_research_size").append(data[i].research.length);
-               $("#p_name_about").append($("#p_name").text());
-
-
-               for(var j = 0; j < data[i].skills.length; j++){
-                 $("#p_skills_list").append("&bull; "+data[i].skills[j]+"<br />");
-               }
-               for(var j = 0; j < data[i].research.length; j++){
-                 $("#p_research_list").append("&bull; "+data[i].research[j]+"<br />");
-               }
-             }
-           });
-
+  
 
 
        var counter = 0;
@@ -213,6 +188,9 @@ $content = '
 
                             <p class="small" id="p_about_text">
 
+Role: '.$userobj["role"].'<br />
+Role Description: '.$userobj["role_desc"].'<br /><br />
+'.$userobj["name"].' has '.$userobj["num_research"].' researches and has '.$userobj["num_skills"].' skill sets.
                             </p>
 
                             <p class="small font-bold">
@@ -281,7 +259,18 @@ foreach(ISDB::getFollowersOf($user) as $following)
                 <div class="col-lg-5">
 
                     <div class="social-feed-box" id="p_projects_feed">
-                        Feed
+
+';
+                    
+                        //Feed
+                    foreach(ISDB::getProjectsByUser($_SESSION['UserID']) as $project)
+                    {
+                        
+                    }
+                    
+                    
+                    $content .= '
+                        
                     </div>
 
 

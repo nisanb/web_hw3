@@ -213,11 +213,46 @@ class ISDB{
         if(self::isFollowing($user))
         {
             self::queryUpdate("delete from Followers where FollowerID in (\"$current\") AND FollowingID in (\"$user\")");
+            self::addNotification($_SESSION['UserID'], 1, "You have stopped following ".$user);
+            self::addNotification($user, 2, $_SESSION['UserID']." has stopped following you.");
         }
         else
         {
             self::queryUpdate("INSERT INTO Followers VALUES (\"$current\", \"$user\")");
+            self::addNotification($_SESSION['UserID'], 1, "You are now following ".$user);
+            self::addNotification($user, 1, $_SESSION['UserID']." has started following you!");
         }
+    }
+    
+    public static function getProjectsByUser($user)
+    {
+        return self::query("select * from Projects where UserID in (\"$user\")");
+    }
+    
+    public static function getProjectFiles($ProjectID)
+    {
+        return self::query("select * from projectFiles here ProjectID=".$ProjectID);
+    }
+    
+    public static function getNotifications($user, $last=5)
+    {
+        $q = self::query("select * from Notifications where UserID in (\"$user\") order by id desc LIMIT ".$last);
+        return $q;
+    }
+    
+    public static function getDynamicNotifications($user)
+    {
+        $q = self::query("select * from Notifications where UserID in (\"$user\") AND iStatus=0");
+        
+        self::queryUpdate("update Notifications set iStatus=1 where UserID in (\"$user\")");
+        
+        return $q;
+    }
+    
+    public static function addNotification($user, $type, $message)
+    {
+        $sql = "INSERT INTO Notifications (iType, UserID, Message) VALUES (\"$type\", \"$user\", \"$message\")";
+        self::queryUpdate($sql);
     }
     
     public static function getUserDetails($user)

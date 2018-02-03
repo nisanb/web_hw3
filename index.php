@@ -36,8 +36,14 @@ function active($menuItem){
     echo "class=\"active\"";
   }
 }
-
+try{
+    
 include "./include/php/".$includePage.".php";
+}
+catch(Exception $e)
+{
+    echo "<pre>The following error occured: <br />".$e->getMessage()."</pre>";
+}
 if($includeTemplate){
   //Meaning user it attempting to get into the Website
   //Verify user is logged in

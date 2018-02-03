@@ -161,10 +161,51 @@
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-bell"></i>  <span class="label label-primary" id="notifications_size"></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-alerts">
-                      <div id="notifications"></div>
+                           
+                    <?php 
+                    $count = 0;
+                    $notes = "";
+                    foreach(ISDB::getNotifications($_SESSION['UserID']) as $notification)
+                    {
+                        switch($notification["iType"])
+                        {
+                            case 0: //success
+                                $type = "smile-o";
+                                break;
+                            case 1: //warning
+                                $type ="warning";
+                                break;
+                            default:
+                                $type = "error";
+                                break;
+                        }
+                        $count++;
+                        if($notification == null)
+                            return;
+                        $notes .= '
+ <li>
+                                    <a href="#">
+                                        <div>
+                                            <i class="fa fa-'.$type.' fa-fw"></i>
+                                            </a><br />
+                                            '.$notification['Message'].'
+                                            <span class="pull-right text-muted small">'.$notification['time'].'</span>
+
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+
+';
+                    }
+                    echo '<i class="fa fa-bell"></i>  <span class="label label-primary">'.$count.'</span>
+ </a>
+                    <ul class="dropdown-menu dropdown-alerts"><div id="notifications">';
+                    echo $notes;
+                    ?>
+                 
+                   
+                      </div>
                         <li>
                             <div class="text-center link-block">
                                 <a href="#">
@@ -423,81 +464,58 @@
                               $("#notifications_size").append(counter);
                                     });
 
-                  /*
-                  Notifications Example
-                  <li>
-                      <a href="mailbox.html">
-                          <div>
-                              <i class="fa fa-envelope fa-fw"></i> You have 16 messages
-                              <span class="pull-right text-muted small">4 minutes ago</span>
-                          </div>
-                      </a>
-                  </li>
-                  <li class="divider"></li>
-                  */
-
-                /* Message example
-                <li>
-                    <div class="dropdown-messages-box">
-                        <a href="profile.html" class="pull-left">
-                            <img alt="image" class="img-circle" src="./include/img/a7.jpg">
-                        </a>
-                        <div class="media-body">
-                            <small class="pull-right">46h ago</small>
-                            <strong>asd Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
-                            <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
-                        </div>
-                    </div>
-                </li>
-                <li class="divider"></li>
-              */
-
-            /*
-            <li>
-
-
-                <div class="dropdown-messages-box">
-                    <a href="#" class="pull-left">
-                        <img alt="image" class="img-circle" src="./include/img/a7.jpg">
-                    </a>
-                    <div class="media-body">
-                        <small class="pull-right">46h ago</small>
-                        <strong>Mike Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
-                        <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
-                    </div>
-                </div>
-            </li>
-            <li class="divider"></li>
-            */
-
-
-            setTimeout(function() {
-                toastr.options = {
-                    closeButton: true,
-                    positionClass: "toast-bottom-right",
-                    progressBar: true,
-                    showMethod: 'slideDown',
-                    timeOut: 1500
-                };
-                toastr.warning('Loading JSON data..', 'Welcome to iScience+');
-
-            }, 0);
-            setTimeout(function() {
-                toastr.options = {
-                    closeButton: true,
-                    progressBar: true,
-                    positionClass: "toast-bottom-right",
-                    showMethod: 'slideDown',
-                    timeOut: 1500
-                };
-                toastr.success('Loading Complete', 'Welcome to iScience+');
-
-            }, 1500);
-
-
-
+	
 
         });
     </script>
+    
+    
+    <?php
+    $timeout = 200;
+    foreach(ISDB::getDynamicNotifications($_SESSION['UserID']) as $notification)
+    {
+        if($notification == null)
+            return;
+        switch($notification["iStatus"])
+        {
+            case 0: $show = "success"; break;
+            case 1: $show = "warning"; break;
+            default:
+                $show = "error";
+                break;
+                
+        }
+        echo "<pre>";
+        print_r($notification);
+        echo "</pre>";
+        $timeout += 300;
+        echo '
+<script>
+        $(document).ready(function() {
+   setTimeout(function() {
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: "toast-bottom-right",
+                    showMethod: "slideDown",
+                    timeOut: 1500
+                };
+                toastr.'.$show.'("'.$notification["Message"].'", "iScience+ Notification");
+
+            }, '.$timeout.');
+
+
+	
+
+
+
+ });
+</script>
+';
+        
+    }
+    ?>
+    
+   
 </body>
 </html>
