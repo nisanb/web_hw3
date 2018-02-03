@@ -83,11 +83,14 @@ toastr.warning(\'Refreshing News Feed..\', \'iScience+ News Feed\');
        </script>';
 
 $addArticle = '
+<form method="POST" action="./?act=addproject">
 <div class="input-group">
-    <input type="text" placeholder="Add a new project" class="input input-sm form-control">
+
+    <input name="title" type="text" placeholder="Add a new project - Project Title" class="input input-sm form-control" REQUIRED>
     <span class="input-group-btn">
-            <button type="button" class="btn btn-sm btn-white"> <i class="fa fa-plus"></i> Post Project</button>
+            <button type="submit" class="btn btn-sm btn-white"> <i class="fa fa-plus"></i> Post Project</button>
     </span>
+</form>
 </div>
 ';
 

@@ -16,6 +16,8 @@ switch(@$_GET['act']){
   case "mailbox":
   case "following":
   case "users":
+  case "addproject":
+  case "addfiles":
   case "profile":
     $includePage = $_GET['act'];
     break;

@@ -224,6 +224,15 @@ class ISDB{
         }
     }
     
+    public static function addProject($title, $desc, $start, $end)
+    {
+        $user = $_SESSION['UserID'];
+        self::queryUpdate("insert into Projects (UserID, Title, Description, ResearchStartDate, ResearchEndDate)
+                VALUES(\"$user\",\"$title\",\"$desc\",\"$start\",\"$end\")");
+        
+        self::addNotification($user, 0, "Project ".$title." has been created successfully!");
+    }
+    
     public static function getProjectsByUser($user)
     {
         return self::query("select * from Projects where UserID in (\"$user\")");
