@@ -137,7 +137,7 @@ class ISDB{
      */
     public static function getFollowersOf($UserID)
     {
-        $result = self::query("select * from Followers inner join Users ON Followers.FollowerID=Users.id WHERE FollowingID in (\"$UserID\")", true);
+        $result = self::query("select * from Followers inner join Users ON Followers.FollowerID=Users.id WHERE FollowingID in (\"$UserID\")");
         return $result;
             
         

@@ -77,7 +77,7 @@ $include_footer = '
                         <div class="social-avatar" style="height: 65px;">
                           <strong>`+data[i].title+`</strong>
                             <a href="" class="pull-left">
-                                <img style="height: 60px; width: 60px;" alt="image" src="./include/img/avatar/'.$userobj["profilepic"].'">
+                                <img style="height: 60px; width: 60px;" alt="image" src="./include/img/avatar/'.@$userobj["profilepic"].'">
                             </a>
                             <div class="media-body">
                                 <a href="#">
@@ -155,7 +155,7 @@ $content = '
                 <div class="col-md-6">
 
                     <div class="profile-image">
-                        <img src="./include/img/avatar/'.$userobj["profilepic"].'" class="img-circle circle-border m-b-md" alt="profile">
+                        <img src="./include/img/avatar/'.@$userobj["profilepic"].'" class="img-circle circle-border m-b-md" alt="profile">
                     </div>
                     <div class="profile-info">
                         <div class="">
@@ -232,6 +232,11 @@ $content = '
                         ';
 foreach(ISDB::getFollowing($user) as $following)
 {
+    if($following == null)
+    {
+        $content .= $user." is not following anyone.";
+    break;
+    }
     $name = $following["id"];
     $avatar = $following["profilepic"];
     $content .= "<a href='./?act=profile&user=".$name."'><img alt=\"image\" title='".$name."' class=\"img-circle\" src=\"./include/img/avatar/".$avatar."\"></a>";
@@ -254,6 +259,11 @@ foreach(ISDB::getFollowing($user) as $following)
                     
 foreach(ISDB::getFollowersOf($user) as $following)
 {
+    if($following == null)
+    {
+        $content .= 'No one follows '.$user;
+        break;
+    }
     $name = $following["id"];
     $avatar = $following["profilepic"];
     $content .= "<a href='./?act=profile&user=".$name."'><img alt=\"image\" title='".$name."' class=\"img-circle\" src=\"./include/img/avatar/".$avatar."\"></a>";
@@ -291,6 +301,11 @@ foreach(ISDB::getFollowersOf($user) as $following)
                                     ';
                     foreach(ISDB::getUserSkills($user) as $skill)
                     {
+                        if($skill == null)
+                        {
+                            $content .= "No skills applied.";
+                            break;
+                        }
                         $content .= "&bull; ".$skill["skillName"]."<br />";
                     }
                     
@@ -312,6 +327,11 @@ foreach(ISDB::getFollowersOf($user) as $following)
      ';
                     foreach(ISDB::getUserResearch($user) as $research)
                     {
+                        if($skill == null)
+                        {
+                            $content .= "No researches applied.";
+                            break;
+                        }
                         $content .= "&bull; ".$research["ResearchName"]."<br />";
                     }
                     
