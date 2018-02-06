@@ -86,7 +86,6 @@ $include_footer = '
                     </div>
            `;
            $("#p_projects_feed").append(line);
-
          }
          $("#p_projects_size").append(counter);
 

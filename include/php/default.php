@@ -1,5 +1,45 @@
 <?php
+$page = $_SERVER['PHP_SELF'];
+$sec = "5";
+header("Refresh: $sec; url=$page");
+
+
 $title = "Homepage";
+
+
+/**
+ * Like a project by logged user
+ */
+if(@isset($_GET['act']) && $_GET['act'] == "like" && @isset($_GET['pid']))
+{
+    ISDB::likeProject($_SESSION['UserID'], $_GET['pid']);
+}
+
+
+$projectsFeed = ISDB::getProjectFeed($_SESSION['UserID']);
+$projectData = "";
+foreach($projectsFeed as $project)
+{
+    $count_likes = ISDB::getProjectsLikesCount($project["id"]);
+    $like = ISDB::isProjectLikedByUser($project["id"], $_SESSION['UserID']);
+    $img = $like==true ? "_not" : "";
+    $projectData .="<tr>
+<td>
+<a href='./?act=project&pid=".$project["id"]."'>".$project["Title"]."</a></td>
+<td>
+<a href='./?act=profile&user=".$project["UserID"]."'>".$project["UserID"]."</td>
+<td>
+".date("d/m/Y",strtotime($project["Date"]))."
+</td>
+<td>".date("d/m/Y",strtotime($project["ResearchStartDate"]))." to ".date("d/m/Y",strtotime($project["ResearchEndDate"]))."</td>
+<td>".$project["Views"]." / ".$count_likes."</td>
+
+<td><a href=\"./?act=like&pid=".$project["id"]."\">
+<img src='./include/img/like_icon".$img.".png' style='width: 20px; height: 20px;' /></a>
+</td></tr>";
+}
+
+
 $include_header = '<link href="./include/css/plugins/footable/footable.core.css" rel="stylesheet">';
 $include_footer = '  <!-- FooTable -->
     <script src="./include/js/plugins/footable/footable.all.min.js"></script>
@@ -7,80 +47,27 @@ $include_footer = '  <!-- FooTable -->
 
 
 
-          //Attempt to load JSON Data using jQuery
-    function updateNewsFeed(){
 
+        $(document).ready(function() {
+$("footable").footable();
+   setTimeout(function() {
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: "toast-bottom-right",
+                    showMethod: "slideDown",
+                    timeOut: 1500
+                };
+                toastr.success("Refreshing NewsFeed", "iScience+ Notification");
 
-                          $.getJSON("./include/json/jobs.json", function(data){
+            }, 3500);
 
-                            $("#jobhunt").html("");
-
-                                    for (var i = 0, len = data.length; i < len; i++) {
-
-                                      var line = "<tr>";
-                                      line += "<td>"+data[i].Role+"</td>";
-                                      line += "<td>"+data[i].Company+"</td>";
-                                      line += "<td>"+data[i].date+"</td>";
-                                      line += "<td>"+data[i].Description+"</td>";
-                                      line += `<td><a href="#" class="btn btn-sm btn-primary">Apply</a></td>`;
-                                      line += "</tr>";
-                                    //  var line = "<tr>td>Project - This is example of project</td><td>Patrick Smith</td><td>0800 051213</td><td>Inceptos Hymenaeos Ltd</td><td><span class=\"pie\">0.52/1.561</span></td><td>20%</td><td>Jul 14, 2013</td><td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td></tr>";
-                                      $("#jobhunt").append(line);
-                        }
-
-
-
-                                    });
-
-          $.getJSON("./include/json/projects.json", function(data){
-
-              $("#newsfeed").html("");
-
-                    for (var i = 0, len = data.length; i < len; i++) {
-
-                      var line = "<tr>";
-                      line += "<td>"+data[i].title+"</td>";
-                      line += "<td>"+data[i].publisher+"</td>";
-                      line += "<td>"+data[i].date+"</td>";
-                      line += "<td>"+data[i].readers+"</td>";
-                      line += "<td>"+data[i].desc+"</td>";
-                      line += "<td>"+data[i].date+"</td>";
-                      line += `<td><a href="#" class="btn btn-sm btn-primary">Remove from Timeline</a></td>`;
-                      line += "</tr>";
-                    //  var line = "<tr>td>Project - This is example of project</td><td>Patrick Smith</td><td>0800 051213</td><td>Inceptos Hymenaeos Ltd</td><td><span class=\"pie\">0.52/1.561</span></td><td>20%</td><td>Jul 14, 2013</td><td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td></tr>";
-                      $("#newsfeed").append(line);
-
-                    }
-                    setTimeout($(\'.footable\').footable(), 500);
-                        setTimeout($(\'.footable2\').footable(), 501);
-
-
-
-  });
-}
-
-//Call news feed update first time
-updateNewsFeed();
-setInterval(function(){
-updateNewsFeed();
-setTimeout(function() {
-toastr.options = {
-closeButton: true,
-positionClass: "toast-bottom-right",
-progressBar: true,
-showMethod: \'slideDown\',
-timeOut: 1500
-};
-toastr.warning(\'Refreshing News Feed..\', \'iScience+ News Feed\');
-
-}, 0);
-}, 20000);
-
-
-
+});
+	
 
 
        </script>';
+
 
 $addArticle = '
 <form method="POST" action="./?act=addproject">
@@ -93,6 +80,12 @@ $addArticle = '
 </form>
 </div>
 ';
+
+if(@$_POST['projectTitle'])
+{
+    ISDB::addNotification($_SESSION['UserID'], 0, "Project <u>".$_POST['projectTitle']."</u> has been created successfully!");
+}
+
 
 
 $content = '<div class="row">
@@ -129,14 +122,13 @@ $content = '<div class="row">
                                     <th data-toggle="true">Project</th>
                                     <th>Name</th>
                                     <th>Date Published</th>
-                                    <th data-hide="all">Readers</th>
-                                    <th data-hide="all">Description</th>
-                                    <th data-hide="all">Date</th>
+                                    <th data-hide="all">Project Dates</th>
+                                    <th data-hide="all">Views / Likes</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody id ="newsfeed">
-
+                                        '.$projectData.'
                                 </tbody>
                                 <tfoot>
                                 <tr>
@@ -171,11 +163,9 @@ $content = '<div class="row">
                                 </div>
                             </div>
                         <div class="ibox-content">
-
                             <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="4">
                                 <thead>
                                 <tr>
-
                                     <th data-toggle="true">Job Role</th>
                                     <th>Company Hiring</th>
                                     <th>Date Published</th>

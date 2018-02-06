@@ -40,7 +40,6 @@ function active($menuItem){
   }
 }
 try{
-    
 include "./include/php/".$includePage.".php";
 }
 catch(Exception $e)

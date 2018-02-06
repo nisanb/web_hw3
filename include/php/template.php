@@ -21,7 +21,12 @@
     <link href="./include/css/style.css" rel="stylesheet">
 
     <?=@$include_header;?>
+<?php
 
+$userInfo = ISDB::getUserDetails($_SESSION['UserID']);
+
+
+?>
 </head>
 
 <body>
@@ -31,11 +36,11 @@
                 <ul class="nav metismenu" id="side-menu">
                     <li class="nav-header">
                         <div class="dropdown profile-element"> <span>
-                            <img alt="image" class="img-circle" style="width: 50px;" src="./include/img/avatar/<?=$_SESSION['UserID'];?>.jpg" />
+                            <img alt="image" class="img-circle" style="width: 50px;" src="./include/img/avatar/<?=$userInfo["profilepic"];?>" />
                              </span>
                             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                            <span class="clear"> <span class="block m-t-xs"> <strong class="./include/css/font-bold" id="profile_name"></strong>
-                            </span> <span class="text-muted text-xs block" id="profile_role"></span><b class="caret"></b> </span> </a>
+                            <span class="clear"> <span class="block m-t-xs"> <strong class="./include/css/font-bold" id="profile_name"><?=$userInfo["name"];?></strong>
+                            </span> <span class="text-muted text-xs block" id="profile_role"><?=$userInfo["role"];?></span><b class="caret"></b> </span> </a>
                             <ul class="dropdown-menu animated fadeInRight m-t-xs">
                                 <li><a href="./?act=profile">Profile</a></li>
                                 <li><a href="#">Followers</a></li>
@@ -182,9 +187,10 @@
                                 $type = "error";
                                 break;
                         }
-                        $count++;
                         if($notification == null)
-                            return;
+                            break;
+                        
+                        $count++;
                         $notes .= '
  <li>
                                     <a href="#">
@@ -206,7 +212,6 @@
                     <ul class="dropdown-menu dropdown-alerts"><div id="notifications">';
                     echo $notes;
                     ?>
-                 
                    
                       </div>
                         <li>
@@ -363,111 +368,6 @@
             });
           });
 
-            //Parse data from users.json for profile viewing
-            $.getJSON("./include/json/users.json", function(data){
-              for(var i = 0, len = data.length; i<len; i++){
-                if(data[i].id != "<?=$_SESSION['UserID'];?>"){
-                  continue;
-                }
-                $("#profile_role").append(data[i].role);
-                $("#profile_name").append(data[i].name);
-              }
-            });
-
-            //Parse data from followers.JSON
-
-            $.getJSON("./include/json/followers.json", function(data){
-                      for (var i = 0, len = data.length; i < len; i++) {
-
-                        if(data[i].follower != "<?=$_SESSION['UserID'];?>"){
-                          continue;
-                        }
-                        $("#followers_size").append(data[i].following.length);
-                        for(var j = 0, followSize = data[i].following.length; j<followSize; j++){
-                          var line = `
-                                    <li>
-                                          <div class="dropdown-messages-box">
-                                              <a href="./?act=profile&user=`+data[i].following[j]+`" class="pull-left">
-                                                  <img alt="image" class="img-circle" src="./include/img/avatar/`+data[i].following[j]+`.jpg">
-                                              </a>
-
-                                              <div class="media-body">
-                                                  <small class="pull-right">46h ago</small>
-                                                  You are following <strong><a href="./?act=profile&user=`+data[i].following[j]+`">`+data[i].following[j]+`</a></strong> <br />
-                                                  <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
-                                              </div>
-                                          </div>
-                                      </li>
-                                      <li class="divider"></li>
-                          `;
-                        $("#followers").append(line);
-
-
-                        }
-
-                      }});
-
-                    //Parsing of messages.json
-                    $.getJSON("./include/json/messages.json", function(data){
-                        var counter = 0;
-                        for (var i = 0, len = data.length; i < len; i++) {
-                          if(data[i].to != "<?=$_SESSION['UserID'];?>"){
-                            continue;
-                          }
-                          counter++;
-                          //A relevant message is found
-                          var line = `
-                          <li>
-                              <div class="dropdown-messages-box">
-                                  <a href="./?act=profile&user=`+data[i].from+`" class="pull-left">
-                                      <img alt="image" class="img-circle" src="./include/img/avatar/`+data[i].from+`.jpg">
-                                  </a>
-                                  <div class="media-body">
-                                      <small class="pull-right" style="color: blue;">New</small>
-                                      `+data[i].message+`<br /><br />
-                                      <small class="text-muted">From <a class="text-muted" href="./?act=profile&user=`+data[i].from+`">`+data[i].from+`</a></small>
-                                  </div>
-                              </div>
-                          </li>
-                          <li class="divider"></li>
-                          `;
-                          $("#messages").append(line);
-
-                        }
-                        $("#messages_size").append(counter);
-                              });
-
-
-                          //Parsing of notifications.json
-                          $.getJSON("./include/json/notifications.json", function(data){
-                              var counter = 0;
-                              for (var i = 0, len = data.length; i < len; i++) {
-                                if(data[i].user != "<?=$_SESSION['UserID'];?>"){
-                                  continue;
-                                }
-                                counter++;
-                                //A relevant message is found
-                                var line = `
-                                <li>
-                                    <a href="#">
-                                        <div>
-                                            <i class="fa fa-`+data[i].type+` fa-fw"></i>
-                                            </a><br />
-                                            `+data[i].statement+`
-                                            <span class="pull-right text-muted small">`+jQuery.timeago(data[i].timestamp)+`</span>
-
-                                        </div>
-                                    </a>
-                                </li>
-                                <li class="divider"></li>
-                                `;
-                                $("#notifications").append(line);
-
-                              }
-                              $("#notifications_size").append(counter);
-                                    });
-
-	
 
         });
     </script>

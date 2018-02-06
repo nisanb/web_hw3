@@ -30,15 +30,16 @@ class ISDB{
         $sql = "SELECT * FROM Users WHERE id in (\"$userID\")";
         if (!$result = $conn->query($sql)) {
             // Oh no! The query failed.
-            throw new Exception("Could not retreive account information.");
+            throw new Exception("Failed to execute query:<br />".$sql);
         }
 
         if ($result->num_rows > 0) {
            throw new Exception("User ID already exists in the system.");
         }
+        
+        
+        $sql = "INSERT INTO Users VALUES (\"$userID\",\"$role\",\"$role_desc\",\"$name\", \"$newFileName\", \"$password\")";
 
-
-        $sql = "INSERT INTO Users VALUES (\"$userID\",\"$role\",\"$role_desc\",\"$name\", \"$baseFile\", \"$password\")";
         if (!$result = $conn->query($sql)) {
             // Oh no! The query failed.
             throw new Exception("Could not generate a new account");
@@ -64,7 +65,7 @@ class ISDB{
         $sql = "SELECT * FROM Users WHERE id in (\"$UserID\") AND password in (\"$password\")";
         if (!$result = $conn->query($sql)) {
             // Oh no! The query failed.
-            throw new Exception("Could not retreive account information.");
+            throw new Exception("Failed to execute query:<br />".$sql);
             exit;
         }
 
@@ -84,7 +85,30 @@ class ISDB{
 
     }
 
-
+    
+    public static function likeProject($user, $pid)
+    {
+        if(self::isProjectLikedByUser($pid, $user))
+        {
+            //User already likes the project - remove him
+            self::queryUpdate("DELETE FROM userLikes WHERE uid in (\"$user\") AND pid=".$pid."");
+            self::addNotification($user, 3, "You have successfully unliked project #".$pid);
+        }
+        else
+        {
+            //User doesn't like the project - add him
+            self::queryUpdate("INSERT INTO userLikes VALUES (\"$user\", \"$pid\")");
+            self::addNotification($user, 0, "You have successfully liked project #".$pid);
+        }
+    }
+    
+    public static function getProjectsLikesCount($pid)
+    {
+        $q = array_filter(self::query("select * from userLikes where pid=".$pid));
+        return count($q);
+        
+    }
+    
     /**
      * Retreive users from the database
      * @throws Exception
@@ -97,7 +121,7 @@ class ISDB{
         $sql = "SELECT * FROM Users";
         if (!$result = $conn->query($sql)) {
             // Oh no! The query failed.
-            throw new Exception("Could not retreive account information.");
+            throw new Exception("Failed to execute query:<br />".$sql);
             exit;
         }
 
@@ -127,10 +151,9 @@ class ISDB{
     public static function getFollowing($UserID)
     {
         $result = self::query("select * from Followers inner join Users ON Followers.FollowingID=Users.id WHERE FollowerID in (\"$UserID\")");
-
         return $result;
     }
-
+    
     /**
      * Returns an array with the followers of $UserID
      * @param unknown $UserID
@@ -142,7 +165,13 @@ class ISDB{
 
 
     }
-
+    
+    public static function isProjectLikedByUser($pid, $user)
+    {
+        $r = self::query("SELECT count(*) from userLikes where uid in (\"$user\") and pid=".$pid."");
+        return $r[0][0] > 0;
+    }
+    
     private static function queryUpdate($sql)
     {
         $conn = self::getConn();
@@ -163,7 +192,7 @@ class ISDB{
 
         if (!$result = $conn->query($sql)) {
             // Oh no! The query failed.
-            throw new Exception("Could not retreive account information.");
+            throw new Exception("Failed to execute query:<br />".$sql);
             exit;
         }
 
@@ -231,14 +260,55 @@ class ISDB{
         self::queryUpdate("insert into Projects (UserID, Title, Description, ResearchStartDate, ResearchEndDate)
                 VALUES(\"$user\",\"$title\",\"$desc\",\"$start\",\"$end\")");
 
-        self::addNotification($user, 0, "Project ".$title." has been created successfully!");
+        return self::query("select id from Projects where UserID in (\"$user\") ORDER BY id DESC LIMIT 1");
+        
     }
 
     public static function getProjectsByUser($user)
     {
         return self::query("select * from Projects where UserID in (\"$user\")");
     }
+    
+    public static function getProjectFeed($user)
+    
+    {
+        $projectArray = array();
+        $followersResult = self::getFollowing($user);
+        
+        foreach($followersResult as $follow)
+        {
+            $projects = self::getProjectsByUser($follow["FollowingID"]);
+            foreach($projects as $project)
+            {
+                $projectArray[$project[0]] = $project;
+            }
+        }
+        
+        $projects = self::getProjectsByUser($_SESSION['UserID']);
+        foreach($projects as $project)
+        {
+            $projectArray[$project[0]] = $project;
+        }
+        
+        
+        
+        $projectArray = array_filter($projectArray);
+        arsort($projectArray);
 
+        
+        return $projectArray;
+        
+        
+        
+    }
+    
+    public static function print($obj)
+    {
+        echo "<pre>";
+        print_r($obj);
+        echo "</pre>";
+    }
+    
     public static function getProjectFiles($ProjectID)
     {
         return self::query("select * from projectFiles here ProjectID=".$ProjectID);
@@ -305,4 +375,16 @@ class ISDB{
        self::queryUpdate("INSERT INTO Messages (FromID, ToID, strMessage) VALUES (\"$user\", \"$sendto\", \"$msg\")");
     }
 
+    
+    public static function addFileToProject($projectID, $fileName)
+    {
+        self::queryUpdate("insert into projectFiles (ProjectID, fileName) VALUES (\"$projectID\", \"$fileName\")");
+    }
+    
+    public static function getRand()
+    {
+        return rand(25125215, 125751258128512);
+    }
+    
+    
 }
