@@ -5,6 +5,7 @@ if(!@isset($_GET['pid']))
     throw new Exception ("Project ID not found!");
 }
 
+ISDB::addView($_GET['pid']);
 
 if(@isset($_GET['like']))
 {
@@ -81,6 +82,7 @@ $content = '
 
                                         <dt>Created by:</dt> <dd><a href="./?act=profile&user='.$project["UserID"].'">'.$project["UserID"].'</a></dd>
                                         <dt>Likes:</dt> <dd>  '.ISDB::getProjectsLikesCount($project["id"]).'</dd>
+<dt>Views:</dt> <dd>  '.$project["Views"].'</dd>
                                     </dl>
                                 </div>
                                 <div class="col-lg-7" id="cluster_info">

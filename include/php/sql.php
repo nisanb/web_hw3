@@ -97,18 +97,27 @@ class ISDB{
     
     public static function likeProject($user, $pid)
     {
+        $owner = self::query("select * from Projects where id = ".$pid, true)[0]["UserID"];
+        
         if(self::isProjectLikedByUser($pid, $user))
         {
             //User already likes the project - remove him
             self::queryUpdate("DELETE FROM userLikes WHERE uid in (\"$user\") AND pid=".$pid."");
             self::addNotification($user, 3, "You have successfully unliked project #".$pid);
+            self::addNotification($owner, 3, "Your project was unliked by ".$user);
         }
         else
         {
             //User doesn't like the project - add him
             self::queryUpdate("INSERT INTO userLikes VALUES (\"$user\", \"$pid\")");
             self::addNotification($user, 0, "You have successfully liked project #".$pid);
+            self::addNotification($owner, 0, "Your project was liked by ".$user);
         }
+    }
+    
+    public static function addView($pid)
+    {
+        self::queryUpdate("update Projects set Views=Views+1 where id = ".$pid);
     }
     
     public static function getProjectsLikesCount($pid)
