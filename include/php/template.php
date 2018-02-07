@@ -43,8 +43,8 @@ ISDB::exportUsers();
                             </span> <span class="text-muted text-xs block" id="profile_role"><?=$userInfo["role"];?></span><b class="caret"></b> </span> </a>
                             <ul class="dropdown-menu animated fadeInRight m-t-xs">
                                 <li><a href="./?act=profile">Profile</a></li>
-                                <li><a href="#">Followers</a></li>
-                                <li><a href="#">Mailbox</a></li>
+                                <li><a href="./?act=users">Followers</a></li>
+                                <li><a href="./?act=chat">Chat</a></li>
                                 <li class="divider"></li>
                                 <li><a href="./?act=logout">Logout</a></li>
                             </ul>
