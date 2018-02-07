@@ -43,8 +43,9 @@ foreach(ISDB::getUsers() as $user)
                             <div class="m-t-xs font-bold"><small>'.$user['role_desc'].'</small></div>
                         </div>
                     </div>
+
                     <div class="col-sm-8">
-                        <h3><strong>'.$user['name'].'</strong></h3>
+                        <h3><strong>'.$user['name'].'</strong></h3></a>
                         <address>
                             <strong>Further Details</strong><br>
                             <i class="fa fa-folder-o"> '.$userDetails["num_projects"].' Projects</i>
