@@ -24,7 +24,7 @@
 <?php
 
 $userInfo = ISDB::getUserDetails($_SESSION['UserID']);
-
+ISDB::exportUsers();
 
 ?>
 </head>
@@ -109,7 +109,6 @@ $userInfo = ISDB::getUserDetails($_SESSION['UserID']);
                     <input type="text" placeholder="Search iScience Users.." class="form-control" name="-search" id="search">
                 </div>
                 <ul class="list-group" id="result">
-
                 </ul>
             </form>
         </div>
@@ -118,11 +117,40 @@ $userInfo = ISDB::getUserDetails($_SESSION['UserID']);
                     <span class="m-r-sm text-muted welcome-message">Welcome to iScience</span>
                 </li>
                 <li class="dropdown">
+                
+                <?php 
+                $totalNewMessages = 0;
+                $messages = "";
+                foreach(ISDB::getMessageAlerts($_SESSION['UserID']) as $message)
+                        {
+                            $totalNewMessages++;
+                            $userDetails = ISDB::getUserDetails($message["FromID"]);
+                            $messages .= '
+<li onclick="location.href = \'./?act=chat&from='.$message["FromID"].'\';">
+                            <div class="dropdown-messages-box">
+                                <a href="./?act=chat&from='.$message["FromID"].'" class="pull-left">
+                                    <img alt="image" class="img-circle" src="./include/img/avatar/'.$userDetails["profilepic"].'" />
+                                </a>
+                                <div class="media-body">
+                                    <small class="pull-right">'.ISDB::time_elapsed_string($message["date"]).'</small>
+                                    <strong>'.$userDetails["name"].'</strong>
+<br />
+                                    <small class="text-muted">'.$message["strMessage"].'</small>
+                                </div>
+                            </div>
+                        </li>
+<br />
+<li class="divider"></li>
+';
+                        }
+                
+                ?>
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-envelope"></i>  <span class="label label-warning" id="messages_size"></span>
+                        <i class="fa fa-envelope"></i>  <span class="label label-warning" id="messages_size"><?=$totalNewMessages;?></span>
                     </a>
                     <ul class="dropdown-menu dropdown-messages" >
                       <div id="messages">
+                      <?=$messages;?>
                       </div>
                         <li>
                             <div class="text-center link-block">
@@ -367,12 +395,15 @@ $userInfo = ISDB::getUserDetails($_SESSION['UserID']);
             $('#result').html('<a href="#" onclick="$(\'#result\').hide()">[X]</a>');
             var searchField = $('#search').val();
             var expression = new RegExp(searchField, "i");
-            $.getJSON('./include/json/users.json', function(data){
+            $.getJSON('include/json/users_new.json', function(data){
+                console.log(data);
+                
               $.each(data, function(key, value){
                 if(value.name.search(expression) != -1 || value.id.search(expression) != -1)
                 {
+                	
                   $('#result').append('<li class="list-group-item">'
-                  + '<a href="./?act=profile&user='+value.id+'"><img src="'+value.picture+'" height="40" width="40" class="img-thumbnail" /> '
+                  + '<a href="./?act=profile&user='+value.id+'"><img src="./include/img/avatar/'+value.profilepic+'" height="40" width="40" class="img-thumbnail" /> '
                   + value.name+'   | <span class="text-muted">'+value.id+'</span></a></li>');
                 }
               });
@@ -402,7 +433,7 @@ $userInfo = ISDB::getUserDetails($_SESSION['UserID']);
         echo "<pre>";
         print_r($notification);
         echo "</pre>";
-        $timeout += 300;
+        $timeout += 600;
         echo '
 <script>
         $(document).ready(function() {
@@ -412,7 +443,7 @@ $userInfo = ISDB::getUserDetails($_SESSION['UserID']);
                     progressBar: true,
                     positionClass: "toast-bottom-right",
                     showMethod: "slideDown",
-                    timeOut: 1500
+                    timeOut: 4500
                 };
                 toastr.'.$show.'("'.$notification["Message"].'", "iScience+ Notification");
 

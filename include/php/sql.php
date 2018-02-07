@@ -118,23 +118,42 @@ class ISDB{
         
     }
     
+    public static function exportUsers()
+    {
+        $usersFile = "./include/json/users_new.json";
+        
+        $timeout = 15; //15 Seconds
+        
+        $fileUpdatedTime = (time() - @filemtime($usersFile) ) ."seconds ago";
+        
+        
+        //Timeout has passed -> update file
+        if($fileUpdatedTime >= $timeout)
+        {
+            //Get users
+            $users = json_encode(self::getUsers(), JSON_PRETTY_PRINT);
+            
+            //Create new JSON
+            $fp = fopen($usersFile, 'w');
+            fwrite($fp, $users);
+            fclose($fp);
+        }
+     
+    }
+    
     /**
      * Retreive users from the database
      * @throws Exception
      * @return
      */
-    public static function getUsers()
+    public static function getUsers($exclude = "")
     {
-        $conn = self::getConn();
-
-        $sql = "SELECT * FROM Users";
-        if (!$result = $conn->query($sql)) {
-            // Oh no! The query failed.
-            throw new Exception("Failed to execute query:<br />".$sql);
-            exit;
+        if(!empty($exclude))
+        {
+            return self::query("select * from Users where id not in (\"$exclude\") order by Name ASC");
         }
-
-        return $result;
+        
+        return self::query("select * from Users order by Name ASC");
     }
 
     /**
@@ -174,6 +193,7 @@ class ISDB{
 
 
     }
+    
     
     public static function isProjectLikedByUser($pid, $user)
     {
@@ -383,10 +403,31 @@ class ISDB{
         return self::query("select * from userResearches inner join Research ON userResearches.ResearchID = Research.ResearchID WHERE userResearches.UserID in (\"$user\")");
     }
 
-
+    public static function getMessages($from, $to="")
+    {
+        $loggedUser = $_SESSION['UserID'];
+        
+        if(@empty($to))
+            $to = $_SESSION['UserID'];
+        
+        $q = self::query("select * from Messages WHERE FromID in (\"$from\", \"$to\") AND ToID in (\"$from\", \"$to\") order by ID ASC");
+        
+            self::queryUpdate("update Messages set readMsg=1 where ToID in (\"$loggedUser\")");
+        
+        return $q;
+        
+    }
+    
+    public static function getMessageAlerts($user)
+    {
+        return self::query("select * from Messages where ToID in (\"$user\") AND readMsg=0 order by id desc");
+    }
+    
     public static function addMessage($user, $sendto, $msg)
     {
        self::queryUpdate("INSERT INTO Messages (FromID, ToID, strMessage) VALUES (\"$user\", \"$sendto\", \"$msg\")");
+       self::addNotification($user, 0, "Your message has been sent!");
+       self::addNotification($sendto, 0, "You have received a message from ".$user);
     }
 
     
@@ -400,5 +441,32 @@ class ISDB{
         return rand(25125215, 125751258128512);
     }
     
-    
+    public static function time_elapsed_string($datetime, $full = false) {
+        $now = new DateTime;
+        $ago = new DateTime($datetime);
+        $diff = $now->diff($ago);
+        
+        $diff->w = floor($diff->d / 7);
+        $diff->d -= $diff->w * 7;
+        
+        $string = array(
+            'y' => 'year',
+            'm' => 'month',
+            'w' => 'week',
+            'd' => 'day',
+            'h' => 'hour',
+            'i' => 'minute',
+            's' => 'second',
+        );
+        foreach ($string as $k => &$v) {
+            if ($diff->$k) {
+                $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
+            } else {
+                unset($string[$k]);
+            }
+        }
+        
+        if (!$full) $string = array_slice($string, 0, 1);
+        return $string ? implode(', ', $string) . ' ago' : 'just now';
+    }
 }

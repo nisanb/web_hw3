@@ -16,6 +16,7 @@ if(@isset($_GET['act']) && $_GET['act'] == "like" && @isset($_GET['pid']))
 }
 
 
+
 $projectsFeed = ISDB::getProjectFeed($_SESSION['UserID']);
 $projectData = "";
 foreach($projectsFeed as $project)
@@ -49,6 +50,7 @@ $include_footer = '  <!-- FooTable -->
 
 
         $(document).ready(function() {
+
 $("footable").footable();
    setTimeout(function() {
                 toastr.options = {

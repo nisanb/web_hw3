@@ -1,0 +1,30 @@
+[
+    {
+        "0": "mickey.shalev",
+        "id": "mickey.shalev",
+        "1": "Mickey Job Title",
+        "role": "Mickey Job Title",
+        "2": "Mickey Job Description",
+        "role_desc": "Mickey Job Description",
+        "3": "Mickey Shalev",
+        "name": "Mickey Shalev",
+        "4": "mickey.shalev.jpg",
+        "profilepic": "mickey.shalev.jpg",
+        "5": "mickey",
+        "password": "mickey"
+    },
+    {
+        "0": "nisanb",
+        "id": "nisanb",
+        "1": "Administrator",
+        "role": "Administrator",
+        "2": "The main owner of iScience+",
+        "role_desc": "The main owner of iScience+",
+        "3": "Nisan Bahar",
+        "name": "Nisan Bahar",
+        "4": "nisanb.jpg",
+        "profilepic": "nisanb.jpg",
+        "5": "admin",
+        "password": "admin"
+    }
+]
