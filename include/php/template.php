@@ -251,6 +251,17 @@ $userInfo = ISDB::getUserDetails($_SESSION['UserID']);
                         <li>
                             <a href="./">Home</a>
                         </li>
+                        <?php 
+                        if(@isset($subtitle))
+                        {
+                            echo "
+                        <li>
+                            ".$subtitle."
+                        </li>
+                    
+                        ";
+                        }
+                        ?>
                         <li class="active">
                             <strong><a><?=$title;?></a></strong>
                         </li>

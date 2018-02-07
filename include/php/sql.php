@@ -85,6 +85,15 @@ class ISDB{
 
     }
 
+    public static function getProjectDetails($pid)
+    {
+        return self::query("select * from Projects where id = ".$pid);
+    }
+    
+    public static function getProjectLikes($pid)
+    {
+        return self::query("select * from userLikes inner join Users on Users.id = userLikes.uid where pid=".$pid);
+    }
     
     public static function likeProject($user, $pid)
     {
@@ -168,8 +177,8 @@ class ISDB{
     
     public static function isProjectLikedByUser($pid, $user)
     {
-        $r = self::query("SELECT count(*) from userLikes where uid in (\"$user\") and pid=".$pid."");
-        return $r[0][0] > 0;
+        $r = self::query("SELECT * from userLikes where uid in (\"$user\") and pid=".$pid."");
+        return !empty($r);
     }
     
     private static function queryUpdate($sql)
@@ -195,30 +204,39 @@ class ISDB{
             throw new Exception("Failed to execute query:<br />".$sql);
             exit;
         }
-
         $rows = array();
-
+        
         if($result->num_rows > 1) {
+            
             while($row = $result->fetch_array())
             {
                 array_push($rows, $row);
             }
         }
-        else{
+        else if($result->num_rows == 1) {
             array_push($rows, mysqli_fetch_array($result, MYSQLI_BOTH));
+        }else{
+            if(@$display)
+            {
+                echo"<pre>";
+                echo $result->num_rows." -> ". $sql."<br />";
+                print_r($rows);
+                echo "</pre>";
+            }
+            return array();
         }
+        
+        
+        
         if(@$display)
         {
             echo"<pre>";
-            echo $sql."<br />";
+            echo $result->num_rows." -> ". $sql."<br />";
             print_r($rows);
             echo "</pre>";
-
+            
         }
-
-        //$t = mysqli_fetch_array($result, MYSQLI_BOTH);
-        if($rows == null)
-            return array();
+        
         return $rows;
     }
 
@@ -226,12 +244,8 @@ class ISDB{
     {
         $loggedUser = $_SESSION['UserID'];
         $q = self::query("select * from Followers where FollowerID in (\"$loggedUser\") AND FollowingID in (\"$user\")");
-        if($q[0] != null){
-            return true;
-        }
-
-
-        return false;
+        
+        return !empty($q);
 
     }
 
@@ -311,7 +325,7 @@ class ISDB{
     
     public static function getProjectFiles($ProjectID)
     {
-        return self::query("select * from projectFiles here ProjectID=".$ProjectID);
+        return self::query("select * from projectFiles where ProjectID=".$ProjectID);
     }
 
     public static function getNotifications($user, $last=5)
