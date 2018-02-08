@@ -1,6 +1,6 @@
 <?php
 $page = $_SERVER['PHP_SELF'];
-$sec = "5";
+$sec = "10";
 header("Refresh: $sec; url=$page");
 
 
@@ -16,6 +16,22 @@ if(@isset($_GET['act']) && $_GET['act'] == "like" && @isset($_GET['pid']))
 }
 
 
+$jobFeed = "";
+foreach(ISDB::getJobs() as $job)
+{
+    $jobFeed .= "
+        
+        
+       <tr>
+        <td>".$job["Role"]."</td>
+<td>".$job["Company"]."</td>
+<td>".$job["time"]."</td>
+<td>".$job["Description"]."</td>
+<td><a href='#'>Apply</a></td>
+</tr>
+    
+";
+}
 
 $projectsFeed = ISDB::getProjectFeed($_SESSION['UserID']);
 $projectData = "";
@@ -62,7 +78,7 @@ $("footable").footable();
                 };
                 toastr.success("Refreshing NewsFeed", "iScience+ Notification");
 
-            }, 3500);
+            }, 9500);
 
 });
 	
@@ -176,7 +192,7 @@ $content = '<div class="row">
                                 </tr>
                                 </thead>
                                 <tbody id ="jobhunt">
-
+                                    '.$jobFeed.'
                                 </tbody>
                                 <tfoot>
                                 <tr>

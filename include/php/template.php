@@ -163,40 +163,6 @@ ISDB::exportUsers();
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user"></i>  <span class="label label-warning" id="followers_size"></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-messages" id="followers">
-
-                      <!-- Mickey - Add content from followers.json
-                      User Connted: <?=$_SESSION['UserID'];?>-->
-                      <!-- I will insert jquery json from followers.json data
-                      Data Type:
-
-                        <li>
-
-
-                            <div class="dropdown-messages-box">
-                                <a href="#" class="pull-left">
-                                    <img alt="image" class="img-circle" src="./include/img/a7.jpg">
-                                </a>
-                                <div class="media-body">
-                                    <small class="pull-right">46h ago</small>
-                                    <strong>Mike Loreipsum</strong> started following <strong>Monica Smith</strong>. <br>
-                                    <small class="text-muted">3 days ago at 7:58 pm - 10.06.2014</small>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="divider"></li>
-
-                      -->
-
-
-
-
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
                            
                     <?php 
                     $count = 0;
@@ -430,9 +396,6 @@ ISDB::exportUsers();
                 break;
                 
         }
-        echo "<pre>";
-        print_r($notification);
-        echo "</pre>";
         $timeout += 600;
         echo '
 <script>

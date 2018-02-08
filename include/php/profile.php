@@ -11,6 +11,12 @@ $include_header = '
 
     ';
 
+
+if(@isset($_GET['like']))
+{
+    ISDB::likeProject($_SESSION['UserID'], $_GET['like']);
+}
+
 //Include JS to Footer
 $include_footer = '
 <script src="./include/js/plugins/sparkline/jquery.sparkline.min.js"></script>
@@ -26,98 +32,6 @@ $include_footer = '
                lineColor: \'#1ab394\',
                fillColor: "transparent"
            });
-
-  
-
-
-       var counter = 0;
-       $.getJSON("./include/json/projects.json", function(data){
-         for(var i = 0, len = data.length; i<len; i++){
-
-           if(data[i].publisher != "'.$user.'"){
-             continue;
-           }
-           counter++;
-           var line = `
-           <div class="social-feed-box">
-
-                        <div class="pull-right social-action dropdown">
-                            <button data-toggle="dropdown" class="dropdown-toggle btn-white">
-                                <i class="fa fa-angle-down"></i>
-                            </button>
-                            <ul class="dropdown-menu m-t-xs">
-                                <li><a href="#">Remove Article</a></li>
-                            </ul>
-                        </div>
-                        <div class="social-avatar" style="height: 65px;">
-                          <strong>`+data[i].title+`</strong>
-                            <a href="" class="pull-left">
-                                <img style="height: 60px; width: 60px;" alt="image" src="./include/img/avatar/'.@$userobj["profilepic"].'">
-                            </a>
-                            <div class="media-body">
-                                <a href="#">
-                                    `;
-                                    //Get author full name
-                                    line += fullName;
-                                line +=`
-                                </a>
-                                <small class="text-muted">`+data[i].date+`</small>
-                            </div>
-
-                        </div>
-                        <div class="social-body">
-
-                            <p>
-                              `+data[i].desc+`
-                            </p>
-
-                            <div class="btn-group">
-                                <button class="btn btn-white btn-xs"><i class="fa fa-thumbs-up"></i> Like this!</button>
-                                <button class="btn btn-white btn-xs"><i class="fa fa-comments"></i> Comment</button>
-                                <button class="btn btn-white btn-xs"><i class="fa fa-share"></i> Share</button>
-                            </div>
-                        </div>
-
-                        <div class="social-footer">
-
-
-                        </div>
-
-                    </div>
-           `;
-           $("#p_projects_feed").append(line);
-         }
-         $("#p_projects_size").append(counter);
-
-      });
-
-
-                 //Load data from followers.json to profile page
-                 $.getJSON("./include/json/followers.json", function(data){
-                   var count_following = 0;
-                   var count_followed = 0;
-
-                   for(var i = 0, len = data.length; i<len; i++){
-                     if(data[i].follower != "'.$user.'"){
-                       count_followed++;
-                       continue;
-                     }
-                     for(var j = 0; j < data[i].following.length; j++){
-                       count_following++;
-                       $("#p_follow_users_images").append("<a href=\"#\"><img alt=\"image\" class=\"img-circle\" src=\"./include/img/avatar/"+data[i].following[j]+".jpg\"></a>");
-                     }
-                     $("#p_following_size").append(count_following);
-                     $("#p_followers_size").append(count_followed);
-                     $("#p_follow_text").append($("#p_name").text()+" is following " + counter + " users.");
-
-                   }
-                 });
-/*
-For following pics
-  <a href=""><img alt="image" class="img-circle" src="img/a3.jpg"></a>
-*/
-   });
-
 
    </script>
 ';
@@ -262,9 +176,62 @@ foreach(ISDB::getFollowersOf($user) as $following)
 ';
                     
                         //Feed
-                    foreach(ISDB::getProjectsByUser($_SESSION['UserID']) as $project)
+                    foreach(ISDB::getProjectsByUser($user) as $project)
                     {
-                        
+                        $up = ISDB::isProjectLikedByUser($project["id"], $_SESSION['UserID']) == true ? "down" : "up";
+                        $content .= '
+ <div class="social-feed-box">
+
+                        <div class="pull-right social-action dropdown">
+                            <button data-toggle="dropdown" class="dropdown-toggle btn-white">
+                                <i class="fa fa-angle-down"></i>
+                            </button>
+                            <ul class="dropdown-menu m-t-xs">
+                                <li><a href="#">Remove Article</a></li>
+                            </ul>
+                        </div>
+                        <div class="social-avatar" style="height: 65px;">
+                          <strong style="font-size: 18px; color: black;"><a href="./?act=project&pid='.$project["id"].'">'.$project["Title"].'</a></strong>
+                            <a href="" class="pull-left">
+                                <img style="height: 60px; width: 60px;" alt="image" src="./include/img/avatar/'.$userobj["profilepic"].'">
+                            </a>
+                            <div class="media-body">
+                                <a href="#">
+                                    '.$userobj["name"].'
+                                </a>
+                                <small class="text-muted">Posted '.ISDB::time_elapsed_string($project["Date"]).'</small>
+                            </div>
+
+                        </div>
+                        <div class="social-body">
+
+                            <p>
+                              '.nl2br($project["Description"]).'
+                            </p>
+
+                            <div class="btn-group">
+                            ';
+                        if($_SESSION['UserID'] != $user)
+                        {
+                 
+                            $content .= '
+  <button class="btn btn-white btn-xs"><a href="./?act=profile&user='.$_GET['user'].'&like='.$project["id"].'"><i class="fa fa-thumbs-'.$up.'"></i> Like this!</a></button>
+                            ';
+                        }
+                              $content .= '
+                                <button class="btn btn-white btn-xs"><i class="fa fa-comments"></i> Comment</button>
+                                <button class="btn btn-white btn-xs"><i class="fa fa-share"></i> Share</button>
+                            </div>
+                        </div>
+
+                        <div class="social-footer">
+
+
+                        </div>
+
+                    </div>
+
+';
                     }
                     
                     

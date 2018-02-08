@@ -97,7 +97,7 @@ class ISDB{
     
     public static function likeProject($user, $pid)
     {
-        $owner = self::query("select * from Projects where id = ".$pid, true)[0]["UserID"];
+        $owner = self::query("select * from Projects where id = ".$pid)[0]["UserID"];
         
         if(self::isProjectLikedByUser($pid, $user))
         {
@@ -113,6 +113,11 @@ class ISDB{
             self::addNotification($user, 0, "You have successfully liked project #".$pid);
             self::addNotification($owner, 0, "Your project was liked by ".$user);
         }
+    }
+    
+    public static function getJobs()
+    {
+        return self::query("select * from JobOffers order by ID Desc");
     }
     
     public static function addView($pid)
