@@ -1,17 +1,27 @@
 <?php
-/**
- * ISDB Web
- * (c) sk8r
- */
-
 class ISDB{
 
+    /*
+    * Local
+    *
+    */
     private static $server      =   "localhost";
     private static $user        =   "root";
     private static $pass        =   "";
     private static $db          =   "ISNetworkDB";
     private static $avatarDir   =   "./include/img/avatar/";
-
+  
+    /*
+    * Remote
+    *
+    private static $server      =   "localhost";
+    private static $user        =   "id3907836_nisanuniv";
+    private static $pass        =   "eog32g344";
+    private static $db          =   "id3907836_isnetworkdb";
+    private static $avatarDir   =   "./include/img/avatar/";
+    */
+    
+    
     /**
      * This function will add a new wallet to the database
      * @param unknown $email
@@ -21,7 +31,7 @@ class ISDB{
     {
         $conn = ISDB::getConn();
 
-        $ext = end((explode(".", $_FILES['avatar']['name'])));
+        $ext = @end((@explode(".", $_FILES['avatar']['name'])));
         $newFileName = $userID.".".$ext;
 
         if(!@isset($avatar))
@@ -318,7 +328,6 @@ class ISDB{
     }
     
     public static function getProjectFeed($user)
-    
     {
         $projectArray = array();
         $followersResult = self::getFollowing($user);
@@ -484,3 +493,4 @@ class ISDB{
         return $string ? implode(', ', $string) . ' ago' : 'just now';
     }
 }
+?>

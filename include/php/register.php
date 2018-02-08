@@ -10,8 +10,6 @@ if(@isset($_POST['userid']))
         if($_POST['password'] != $_POST['passwordrepeat'])
             throw new Exception("Passwords do not match");
         
-            echo $_FILES["avatar"]["name"];
-            
         //Attempt to add an account
             ISDB::addAccount($_POST['userid'], $_POST['password'], $_POST['name'], $_POST['role'], $_POST['role_desc'], $_FILES["avatar"]);
         header("Location: ./");

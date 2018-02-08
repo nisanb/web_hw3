@@ -30,6 +30,11 @@ switch(@$_GET['act']){
   break;
 
   default:
+      if(!@isset($_SESSION['UserID'])){
+          //Redirect
+          header("Location: ./?act=login");
+          return;
+      }
     $includePage = "default";
   break;
     }
@@ -51,8 +56,8 @@ catch(Exception $e)
 
 if($includeTemplate){
   //Meaning user it attempting to get into the Website
-  //Verify user is logged in
-  if(!isset($_SESSION['UserID'])){
+  //Verify user is logged in    
+  if(!@isset($_SESSION['UserID'])){
     //Redirect
     header("Location: ./?act=login");
     return;

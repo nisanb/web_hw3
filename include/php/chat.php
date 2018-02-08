@@ -142,6 +142,10 @@ foreach(ISDB::getUsers($_SESSION['UserID']) as $user)
     {
         $isactive = 'style="background-color: #eee;"';
     }
+    else 
+    {
+        $isactive = '';
+    }
     $content .= '
  <div class="chat-user" '.@$isactive.'>
                                             <img class="chat-avatar img-circle" src="./include/img/avatar/'.$user["profilepic"].'" alt="">
